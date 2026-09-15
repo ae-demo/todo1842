@@ -16,7 +16,7 @@ A web-based to-do app where a signed-in user creates lists, works tasks solo or 
 
 1. As a user, I want to sign in securely, so that my lists and tasks are private to me and the people I choose to share with.
 2. As a user, I want to create a to-do list, so that I can organize tasks by project, household, or context.
-3. As a user, I want to invite another user to a list, so that we can work the same tasks together.
+3. As a user, I want to invite another user to a list by their username, so that we can work the same tasks together.
 4. As a user, I want to add a task to a list with a title, due date, and priority, so that I can track what needs doing and how urgent it is.
 5. As a user, I want to mark a task as done or not done, so that the list reflects real progress.
 6. As a user, I want to edit or delete a task, so that the list stays accurate as things change.
@@ -28,10 +28,10 @@ A web-based to-do app where a signed-in user creates lists, works tasks solo or 
 ## Product Decisions
 
 - Sign-in is via Thunder, the platform SSO — every user authenticates through it before seeing any list (org default).
-- Any user can create a list and becomes its owner; only the owner can invite or remove collaborators or delete the list *assumed*.
-- A list owner invites a collaborator by the collaborator's account email address *assumed*.
-- An invited collaborator has full edit rights on the list's tasks (add, edit, complete, delete) but cannot invite others, remove collaborators, or delete the list *assumed*.
-- No email or push notifications in this version — invites and changes are visible only when the user is in the app *assumed*.
+- Any user can create a list and becomes its owner; only the owner can invite or remove collaborators or delete the list.
+- A list owner invites a collaborator by the collaborator's username/handle.
+- An invited collaborator has full edit rights on the list's tasks (add, edit, complete, delete) but cannot invite others, remove collaborators, or delete the list.
+- No email or push notifications in this version — invites and changes are visible only when the user is in the app.
 - Tasks carry a title, an optional due date, and a priority level (low / medium / high) *assumed*.
 
 ## Out of Scope

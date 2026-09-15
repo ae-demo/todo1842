@@ -1,0 +1,327 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  version: 0.1.0
+  description: Manages to-do lists, list memberships, and tasks.
+servers:
+  - url: /
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    UserId:
+      name: X-User-Id
+      in: header
+      required: true
+      description: caller identity injected by the gateway from the validated token
+      schema: { type: string }
+    ListId:
+      name: listId
+      in: path
+      required: true
+      schema: { type: string }
+    TaskId:
+      name: taskId
+      in: path
+      required: true
+      schema: { type: string }
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: integer, description: HTTP or application error code }
+        message: { type: string, description: short human-readable label }
+        description: { type: string, description: detailed explanation }
+        moreInfo: { type: string, description: URI to documentation }
+    TodoList:
+      type: object
+      required: [id, name, ownerId, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        ownerId: { type: string }
+        createdAt: { type: string, format: date-time }
+    TodoListCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+    Membership:
+      type: object
+      required: [id, listId, userId, username, role]
+      properties:
+        id: { type: string }
+        listId: { type: string }
+        userId: { type: string }
+        username: { type: string }
+        role: { type: string, enum: [owner, collaborator] }
+    MembershipCreate:
+      type: object
+      required: [username]
+      properties:
+        username: { type: string, description: username of the user to invite }
+    Task:
+      type: object
+      required: [id, listId, title, priority, done, createdAt]
+      properties:
+        id: { type: string }
+        listId: { type: string }
+        title: { type: string }
+        dueDate: { type: string, format: date, nullable: true }
+        priority: { type: string, enum: [low, medium, high] }
+        done: { type: boolean }
+        createdAt: { type: string, format: date-time }
+    TaskCreate:
+      type: object
+      required: [title, priority]
+      properties:
+        title: { type: string }
+        dueDate: { type: string, format: date, nullable: true }
+        priority: { type: string, enum: [low, medium, high] }
+    TaskUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        dueDate: { type: string, format: date, nullable: true }
+        priority: { type: string, enum: [low, medium, high] }
+        done: { type: boolean }
+security:
+  - bearerAuth: []
+paths:
+  /todo-lists:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: listTodoLists
+      summary: List the lists the caller owns or is a member of
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: paginated lists
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer, description: total matching items }
+                  next: { type: string, nullable: true, description: relative URI of the next page }
+                  previous: { type: string, nullable: true, description: relative URI of the previous page }
+                  data: { type: array, items: { $ref: '#/components/schemas/TodoList' } }
+        '401':
+          description: not authenticated
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    post:
+      operationId: createTodoList
+      summary: Create a new list owned by the caller
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/TodoListCreate' } } }
+      responses:
+        '201':
+          description: list created
+          content: { application/json: { schema: { $ref: '#/components/schemas/TodoList' } } }
+        '400':
+          description: invalid input
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401':
+          description: not authenticated
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /todo-lists/{listId}:
+    parameters:
+      - $ref: '#/components/parameters/ListId'
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: getTodoList
+      summary: Get a list by id (owner or member only)
+      responses:
+        '200':
+          description: the list
+          content: { application/json: { schema: { $ref: '#/components/schemas/TodoList' } } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: list not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    delete:
+      operationId: deleteTodoList
+      summary: Delete a list (owner only)
+      responses:
+        '204':
+          description: deleted
+        '403':
+          description: caller is not the owner
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: list not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /todo-lists/{listId}/memberships:
+    parameters:
+      - $ref: '#/components/parameters/ListId'
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: listMemberships
+      summary: List who has access to this list
+      responses:
+        '200':
+          description: memberships
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer, description: total matching items }
+                  next: { type: string, nullable: true, description: relative URI of the next page }
+                  previous: { type: string, nullable: true, description: relative URI of the previous page }
+                  data: { type: array, items: { $ref: '#/components/schemas/Membership' } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    post:
+      operationId: inviteCollaborator
+      summary: Invite a user to this list by username (owner only)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/MembershipCreate' } } }
+      responses:
+        '201':
+          description: membership created
+          content: { application/json: { schema: { $ref: '#/components/schemas/Membership' } } }
+        '400':
+          description: invalid input
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '403':
+          description: caller is not the owner
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: username not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /todo-lists/{listId}/memberships/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/ListId'
+      - $ref: '#/components/parameters/UserId'
+    delete:
+      operationId: removeMembership
+      summary: Remove a collaborator (owner only), or a collaborator leaving the list themselves
+      responses:
+        '204':
+          description: removed
+        '403':
+          description: not permitted to remove this membership
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: membership not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /todo-lists/{listId}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/ListId'
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: listTasks
+      summary: List tasks on a list, sortable/filterable by due date and priority
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: sort
+          in: query
+          schema: { type: string, enum: [dueDate, priority] }
+        - name: priority
+          in: query
+          schema: { type: string, enum: [low, medium, high] }
+        - name: done
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: paginated tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count, data]
+                properties:
+                  count: { type: integer, description: total matching items }
+                  next: { type: string, nullable: true, description: relative URI of the next page }
+                  previous: { type: string, nullable: true, description: relative URI of the previous page }
+                  data: { type: array, items: { $ref: '#/components/schemas/Task' } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    post:
+      operationId: createTask
+      summary: Add a task to a list (owner or collaborator)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/TaskCreate' } } }
+      responses:
+        '201':
+          description: task created
+          content: { application/json: { schema: { $ref: '#/components/schemas/Task' } } }
+        '400':
+          description: invalid input
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /todo-lists/{listId}/tasks/{taskId}:
+    parameters:
+      - $ref: '#/components/parameters/ListId'
+      - $ref: '#/components/parameters/TaskId'
+      - $ref: '#/components/parameters/UserId'
+    get:
+      operationId: getTask
+      summary: Get a single task
+      responses:
+        '200':
+          description: the task
+          content: { application/json: { schema: { $ref: '#/components/schemas/Task' } } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: task not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    patch:
+      operationId: updateTask
+      summary: Edit a task, or mark it done/not done (owner or collaborator)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/TaskUpdate' } } }
+      responses:
+        '200':
+          description: task updated
+          content: { application/json: { schema: { $ref: '#/components/schemas/Task' } } }
+        '400':
+          description: invalid input
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: task not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    delete:
+      operationId: deleteTask
+      summary: Delete a task (owner or collaborator)
+      responses:
+        '204':
+          description: deleted
+        '403':
+          description: not a member of this list
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: task not found
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }

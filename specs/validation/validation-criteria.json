@@ -1,0 +1,99 @@
+{
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "statement": "A user signs in securely so their lists and tasks are private to them and the people they choose to share with",
+      "stories": [1],
+      "criteria": [
+        { "id": "AC-001-a", "must": "An unauthenticated visitor cannot view any list or task data", "method": "e2e" },
+        { "id": "AC-001-b", "must": "A signed-in user only sees lists they own or are a collaborator on", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-002",
+      "statement": "A user can create a to-do list",
+      "stories": [2],
+      "criteria": [
+        { "id": "AC-002-a", "must": "A user can create a new list by naming it", "method": "e2e" },
+        { "id": "AC-002-b", "must": "The created list appears in the creator's list of lists with them as owner", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-003",
+      "statement": "A user can invite another user to a list by username so they can work the same tasks together",
+      "stories": [3],
+      "criteria": [
+        { "id": "AC-003-a", "must": "The list owner can invite another user to the list by entering that user's username", "method": "e2e" },
+        { "id": "AC-003-b", "must": "Inviting a username that does not exist is rejected with a clear error", "method": "e2e" },
+        { "id": "AC-003-c", "must": "Once invited, the invited user can see and access the shared list", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-004",
+      "statement": "A user can add a task to a list with a title, due date, and priority",
+      "stories": [4],
+      "criteria": [
+        { "id": "AC-004-a", "must": "A user can add a task with a title", "method": "e2e" },
+        { "id": "AC-004-b", "must": "A user can optionally set a due date on a task", "method": "e2e" },
+        { "id": "AC-004-c", "must": "A user can set a priority level (low, medium, or high) on a task", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-005",
+      "statement": "A user can mark a task as done or not done so the list reflects real progress",
+      "stories": [5],
+      "criteria": [
+        { "id": "AC-005-a", "must": "A user can mark an incomplete task as done", "method": "e2e" },
+        { "id": "AC-005-b", "must": "A user can mark a completed task as not done again", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-006",
+      "statement": "A user can edit or delete a task so the list stays accurate",
+      "stories": [6],
+      "criteria": [
+        { "id": "AC-006-a", "must": "A user can edit a task's title, due date, or priority", "method": "e2e" },
+        { "id": "AC-006-b", "must": "A user can delete a task, and it no longer appears on the list", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-007",
+      "statement": "A user can view a list's tasks sorted or filtered by due date or priority",
+      "stories": [7],
+      "criteria": [
+        { "id": "AC-007-a", "must": "A user can sort a list's tasks by due date", "method": "e2e" },
+        { "id": "AC-007-b", "must": "A user can sort a list's tasks by priority", "method": "e2e" },
+        { "id": "AC-007-c", "must": "A user can filter a list's tasks by priority level", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-008",
+      "statement": "A user can see who else has access to a shared list",
+      "stories": [8],
+      "criteria": [
+        { "id": "AC-008-a", "must": "A user viewing a shared list can see the list of collaborators and the owner", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-009",
+      "statement": "A user can remove a collaborator from a list they own, or leave a list someone else owns, so access stays current",
+      "stories": [9],
+      "criteria": [
+        { "id": "AC-009-a", "must": "A list owner can remove a collaborator from their list", "method": "e2e" },
+        { "id": "AC-009-b", "must": "A removed collaborator no longer has access to the list", "method": "e2e" },
+        { "id": "AC-009-c", "must": "A collaborator can leave a list they do not own", "method": "e2e" },
+        { "id": "AC-009-d", "must": "A collaborator cannot remove another collaborator or the owner from a list they do not own", "method": "e2e" }
+      ]
+    },
+    {
+      "id": "REQ-010",
+      "statement": "A user can delete a list they own so they can remove lists no longer needed",
+      "stories": [10],
+      "criteria": [
+        { "id": "AC-010-a", "must": "A list owner can delete their list", "method": "e2e" },
+        { "id": "AC-010-b", "must": "A deleted list no longer appears for the owner or any of its collaborators", "method": "e2e" },
+        { "id": "AC-010-c", "must": "A collaborator cannot delete a list they do not own", "method": "e2e" }
+      ]
+    }
+  ]
+}

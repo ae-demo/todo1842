@@ -1,0 +1,17 @@
+{
+  "name": "todo-api",
+  "type": "service",
+  "version": "0.1.0",
+  "language": "Ballerina",
+  "buildpack": "docker",
+  "appPath": "todo-api",
+  "entrypoint": "deployment/service",
+  "exposure": "intranet",
+  "dependencies": [
+    { "kind": "platform-resource", "name": "todo-db", "resourceType": "postgres-cnpg", "parameters": { "instances": 1, "storage": "1Gi", "version": "16" } },
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app" }
+  ],
+  "description": "Owns lists, list memberships, and tasks. Exposes CRUD for lists (create/delete, owner-only), collaborator invite/remove by username (owner-only), and task management (add/edit/complete/delete, sortable and filterable by due date and priority) for any list member. Resolves the caller's identity from the Thunder-validated token via the gateway-injected user header. Does not send email or push notifications, and does not handle sign-in itself.",
+  "stories": [2, 3, 4, 5, 6, 7, 8, 9, 10],
+  "skillsPinned": ["openapi-conventions", "ballerina", "api-management", "thunder-authentication"]
+}

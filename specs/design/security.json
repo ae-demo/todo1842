@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "coldStartRole": "User",
+  "publicComponents": [],
+  "roles": [
+    {
+      "name": "User",
+      "description": "A signed-in person who creates and owns lists, invites collaborators, and manages tasks on lists they belong to.",
+      "stories": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "grantedBy": "first sign-in",
+      "permissions": [
+        { "component": "todo-api", "actions": ["create list", "invite collaborator", "remove collaborator", "delete list", "create task", "edit task", "complete task", "delete task", "list tasks"] },
+        { "component": "todo-webapp", "screens": ["Lists", "List Detail", "Task Form", "Collaborators"] }
+      ]
+    }
+  ],
+  "testUsers": [
+    { "username": "test-user", "role": "User" }
+  ],
+  "thunder": {
+    "name": "Todo Web",
+    "type": "browser",
+    "scopes": "openid profile email group ou"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "todo-webapp",
+  "type": "web-application",
+  "version": "0.1.0",
+  "language": "TypeScript",
+  "buildpack": "docker",
+  "appPath": "todo-webapp",
+  "entrypoint": "deployment/web-application",
+  "exposure": "internet",
+  "dependencies": [
+    { "kind": "component", "name": "todo-api" },
+    { "kind": "platform-resource", "name": "user-auth", "resourceType": "thunder-app" }
+  ],
+  "description": "Single-page app where a signed-in user creates and manages to-do lists, invites collaborators by username, and manages tasks (title, due date, priority) on lists they own or belong to. Signs in via Thunder SSO; all data operations go through todo-api. Does not store any task or list data itself.",
+  "stories": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  "skillsPinned": ["wireframes", "react-webapp", "oxygen-ui-design-system", "thunder-authentication"]
+}
